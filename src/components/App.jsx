@@ -15,6 +15,7 @@ import ProtectedRoute from './ProtectedRoute';
 import Login from './Login';
 import Register from './Register';
 import InfoTooltip from './InfoTooltip';
+import * as mestoAuth from '../mestoAuth'
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -39,7 +40,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const history = useHistory();
   const [email, setEmail] = useState('');
-  const [isInfoTooltipOpen, setisInfoTooltipOpen] = useState(false);
+  const [tooltipStatus, setTooltipStatus] = useState(null)
 
   useEffect(() =>{
     Promise.all([api.getUserInfo(), api.getInitialCards()])
@@ -77,7 +78,7 @@ function App() {
       isImageOpen: false,
       card: {}
     });
-    setisInfoTooltipOpen(false)
+    setTooltipStatus(null)
   }
 
   function handleCardClick(card) {
@@ -142,55 +143,59 @@ function App() {
       .catch(console.log)
       .finally(() => setIsLoading(false))
   }
-  // function handleLogin({email, password}) {
-  //   return mestoAuth.authorize(email, password)
-  //   .then((data) => {
-  //     if (data.jwt) {
-  //       localStorage.setItem('jwt', data.jwt);
+  function handleLogin({password, email}) {
+    return mestoAuth.authorize(password, email)
+    .then((data) => {
+      if (data) {
+        localStorage.setItem('jwt', data.token);
 
-  //       tokenCheck();
-  //     }
-  //   })
-  // }
-      function infoTooltipOpener(data){
-        setisInfoTooltipOpen(true);
-        <InfoTooltip 
-          id={data._id} 
-          isOpen={isInfoTooltipOpen} 
-          onClose={closeAllPopups} 
-          name={'infoTooltip'}
-        />
+        tokenCheck();
+      } else {
+        setTooltipStatus('fail')
       }
-  // function handleRegister({email, password}) {
-  //   return mestoAuth.register(email, password)
-  //   .then((data) => {
-          // infoTooltipOpener(data)
-  //     setTimeout(() => {history.push('/signin')}, 3000);
-  //   });
-  // }
+    })
+  }
+  function handleRegister({password, email}) {
+    return mestoAuth.register(password, email)
+    .then((res) => {
+      if(res) {
+        setTooltipStatus('success')
+        setTimeout(() => {history.push('/signin')}, 3000);
+        } else {
+          setTooltipStatus('fail')}
+      setTimeout(() => {closeAllPopups()}, 3000)
+    });
+  }
   function handleSignOut() {
     localStorage.removeItem('jwt');
     setLoggedIn(false);
-    setCurrentUser(null);
+    setEmail(null);
     history.push('/signup');
   }
 
-  // function tokenCheck() {
-  //   if (localStorage.getItem('jwt')){
-  //     let jwt = localStorage.getItem('jwt');
-  //     mestoAuth.getContent(jwt)
-  //     .then((res) => {
-  //       if (res){
-  //         let userData = {
-  //           email: res.email
-  //         }
+  function tokenCheck() {
+    if (localStorage.getItem('jwt')){
+      let jwt = localStorage.getItem('jwt');
+      mestoAuth.getContent(jwt)
+      .then((res) => {
+        if (res){
+          console.log(res)
+          let userData = res.data.email
+          setLoggedIn(true);
+          setEmail(userData);
+        }
+      });
+    }
+  }
+  useEffect(() => {
+    tokenCheck();
+  }, []);
 
-  //         setLoggedIn(true);
-  //         setEmail(userData);
-  //       }
-  //     });
-  //   }
-  // }
+  useEffect(() => {
+      if (loggedIn) {
+          history.push("/");
+      }
+  }, [loggedIn]);
   return (
     <CurrentUserContext.Provider value ={currentUser}>
       <CardsContext.Provider value = {cards}>
@@ -251,12 +256,21 @@ function App() {
               isOpen={selectedCard.isOpen}/>
             </ProtectedRoute>
             <Route exact path='/signup'>
-              <Register infoTooltipOpener={infoTooltipOpener}/>
-              {/* handleRegister={handleRegister} /> */}
+              <Register 
+                handleRegister={handleRegister} />
+              <InfoTooltip 
+                tooltipStatus={tooltipStatus}
+                onClose={closeAllPopups} 
+                name={'infoTooltip'}
+              />
             </Route>
             <Route exact path='/signin'>
-              <Login infoTooltipOpener={infoTooltipOpener}/>
-              {/* handleLogin={handleLogin} /> */}
+              <Login handleLogin={handleLogin} />
+              <InfoTooltip 
+                tooltipStatus={tooltipStatus}
+                onClose={closeAllPopups} 
+                name={'infoTooltip'}
+              />
             </Route>
             <Route>
               {loggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}

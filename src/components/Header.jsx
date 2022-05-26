@@ -3,7 +3,6 @@ import headerLogo from '../images/logoMesto.svg';
 import { Link } from "react-router-dom";
 
 function Header({location, handleSignOut, email}) {
-  console.log(location);
   return (
     <header className="header">
       <img className="header__logo" src={headerLogo} alt="Логотип сайта с названием Место Россия" />

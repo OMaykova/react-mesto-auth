@@ -16,12 +16,10 @@ const Register = (props) => {
     if (!formValues.email || !formValues.password){
       return;
     }
-    console.log('нажали register submit')
-    // props.handleRegister({ email: formValues.email, password: formValues.password })
-    //   .catch((err) => {
-    //     props.infoTooltipOpener(err);
-    //     console.log(err)
-    //   });
+    props.handleRegister({ password: formValues.password, email: formValues.email })
+      .catch((err) => {
+        console.log(err)
+      });
   }
   return(
     <div className='sign'>
