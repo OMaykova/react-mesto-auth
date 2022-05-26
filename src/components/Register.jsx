@@ -29,9 +29,9 @@ const Register = (props) => {
         <input value={formValues.password} onChange={handleChange} className="sign__input" type="text" name="password" placeholder="Пароль" required />
         <button className="sign__save-button" type="submit" title='Зарегистрироваться' aria-label='Кнопка Зарегистрироваться'>Зарегистрироваться</button>
       </form>
-      <div className="register__signin">
-          <p>Уже зарегистрированы?</p>
-          <Link to="/signin" className="sign__login-link">Войти</Link>
+      <div className="register">
+          <p className='register__already'>Уже зарегистрированы?</p>
+          <Link to="/signin" className="register__login-link">Войти</Link>
         </div>
     </div>
   )
