@@ -9,13 +9,13 @@ function InfoTooltip(props) {
         <button onClick={props.onClose} className="popup__close-button" type="button" title="Закрыть" aria-label="Кнопка Закрыть" />
         {props.tooltipStatus === 'success' &&
           <>
-            <div className='popup__tooltip-image-sucсess'>sucсess</div>
+            <div className='popup__tooltip-image-sucсess'></div>
             <h3 className={`popup__title popup__title_type_${props.name}`}>Вы успешно зарегистрировались!</h3>
           </>
         }
         {props.tooltipStatus === 'fail' &&
           <>
-            <div className='popup__tooltip-image-fail'>fail</div>
+            <div className='popup__tooltip-image-fail'></div>
             <h3 className={`popup__title popup__title_type_${props.name}`}>Что-то пошло не так! Попробуйте ещё раз.</h3>
           </> 
         }
