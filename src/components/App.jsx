@@ -147,7 +147,8 @@ function App() {
     .then((data) => {
       if (data) {
         localStorage.setItem('jwt', data.token);
-        checkToken();
+        setLoggedIn(true);
+        setEmail(email);
       } else {
         setTooltipStatus('fail')
       }
@@ -198,27 +199,13 @@ function App() {
     checkToken();
   }, []);
 
-  // useEffect(() => {
-  //     if (loggedIn) {
-  //         history.push("/");
-  //     }
-  // }, [loggedIn]);
   return (
     <CurrentUserContext.Provider value ={currentUser}>
       <CardsContext.Provider value = {cards}>
         <div className="page">
+          <Header email={email} handleSignOut={handleSignOut}/>
           <Switch>
-            <Route exact path='/signup'>
-              <Header location = {'register'} />
-            </Route>
-            <Route exact path='/signin'>
-              <Header location = {'login'} />
-            </Route>
-          </Switch>
-          
-          <Switch>
-            <ProtectedRoute exact path='/' loggedIn={loggedIn}>
-              <Header location = {'main'} email={email} handleSignOut={handleSignOut}/>
+            <ProtectedRoute exact path='/' loggedIn={loggedIn} checkToken={checkToken}>
               <Main 
               onEditProfile={handleEditProfileClick} 
               onAddPlace={handleAddPlaceClick} 
