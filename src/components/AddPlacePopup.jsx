@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useRef, useEffect} from 'react';
 import PopupWithForm from './PopupWithForm';
 
 function AddPlacePopup({isOpen, onClose, onAddPlace, isLoading}) {
@@ -12,9 +12,13 @@ function AddPlacePopup({isOpen, onClose, onAddPlace, isLoading}) {
       caption: captionRef.current.value,
       link: linkRef.current.value
     });
-    captionRef.current.value='';
-    linkRef.current.value='';
   }
+  useEffect(() =>{
+    if(isOpen) {
+      captionRef.current.value='';
+      linkRef.current.value='';
+    }
+  })
   return(
     <PopupWithForm 
       onSubmit={handleSubmit}

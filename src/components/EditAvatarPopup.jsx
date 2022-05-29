@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useEffect, useRef} from 'react';
 import PopupWithForm from './PopupWithForm';
 
 function EditAvatarPopup({currentUser, onUpdateAvatar, isOpen, onClose, isLoading}) {
@@ -7,9 +7,13 @@ function EditAvatarPopup({currentUser, onUpdateAvatar, isOpen, onClose, isLoadin
   function handleSubmit(e) {
     e.preventDefault();
     onUpdateAvatar(inputRef.current.value);
-    inputRef.current.value = ''
   }
 
+  useEffect(() =>{
+    if(isOpen) {
+      inputRef.current.value = ''
+    }
+  })
   return(
     <PopupWithForm 
       onSubmit={handleSubmit}

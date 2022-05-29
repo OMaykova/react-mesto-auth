@@ -21,11 +21,7 @@ function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState({
-    isImageOpen: false,
-    link: '',
-    name: '',
-  });
+  const [selectedCard, setSelectedCard] = useState({});
   const [selectedDeleteCard, setSelectedDeletedCard] = useState({
     isImageOpen: false,
     card: {}
@@ -43,18 +39,21 @@ function App() {
   const [tooltipStatus, setTooltipStatus] = useState(null)
 
   useEffect(() =>{
-    Promise.all([api.getUserInfo(), api.getInitialCards()])
-      .then(([res, card]) => {
-        setCurrentUser({
-          name: res.name,
-          about: res.about,
-          avatar: res.avatar,
-          _id: res._id
-        })
+    if (loggedIn) {
+      history.push("/");
+      Promise.all([api.getUserInfo(), api.getInitialCards()])
+        .then(([res, card]) => {
+          setCurrentUser({
+            name: res.name,
+            about: res.about,
+            avatar: res.avatar,
+            _id: res._id
+          })
         setCards(card)
-      })
-      .catch(console.log)
-  }, [])
+        })
+        .catch(console.log)}
+  }, [loggedIn])
+  
 
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true)
@@ -148,12 +147,14 @@ function App() {
     .then((data) => {
       if (data) {
         localStorage.setItem('jwt', data.token);
-
-        tokenCheck();
+        checkToken();
       } else {
         setTooltipStatus('fail')
       }
     })
+    .catch(err => {
+      console.log(err)
+    });
   }
   function handleRegister({password, email}) {
     return mestoAuth.register(password, email)
@@ -164,6 +165,9 @@ function App() {
         } else {
           setTooltipStatus('fail')}
       setTimeout(() => {closeAllPopups()}, 3000)
+    })
+    .catch(err => {
+      console.log(err)
     });
   }
   function handleSignOut() {
@@ -173,29 +177,32 @@ function App() {
     history.push('/signup');
   }
 
-  function tokenCheck() {
+  function checkToken() {
     if (localStorage.getItem('jwt')){
-      let jwt = localStorage.getItem('jwt');
+      const jwt = localStorage.getItem('jwt');
       mestoAuth.getContent(jwt)
       .then((res) => {
+        console.log(res)
         if (res){
-          console.log(res)
-          let userData = res.data.email
+          const userData = res.data.email
           setLoggedIn(true);
           setEmail(userData);
         }
+      })
+      .catch(err => {
+        console.log(err)
       });
     }
   }
   useEffect(() => {
-    tokenCheck();
+    checkToken();
   }, []);
 
-  useEffect(() => {
-      if (loggedIn) {
-          history.push("/");
-      }
-  }, [loggedIn]);
+  // useEffect(() => {
+  //     if (loggedIn) {
+  //         history.push("/");
+  //     }
+  // }, [loggedIn]);
   return (
     <CurrentUserContext.Provider value ={currentUser}>
       <CardsContext.Provider value = {cards}>
@@ -257,28 +264,21 @@ function App() {
             </ProtectedRoute>
             <Route exact path='/signup'>
               <Register 
-                handleRegister={handleRegister} />
-              <InfoTooltip 
-                tooltipStatus={tooltipStatus}
-                onClose={closeAllPopups} 
-                name={'infoTooltip'}
-              />
+                handleReqest={handleRegister} />
             </Route>
             <Route exact path='/signin'>
-              <Login handleLogin={handleLogin} />
-              <InfoTooltip 
-                tooltipStatus={tooltipStatus}
-                onClose={closeAllPopups} 
-                name={'infoTooltip'}
-              />
+              <Login handleReqest={handleLogin} />
             </Route>
-            <Route>
-              {loggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
-            </Route>
+
             {/* <Route exact path='*'>
               <PageNotFound/>
             </Route> */}
           </Switch>
+          <InfoTooltip 
+                tooltipStatus={tooltipStatus}
+                onClose={closeAllPopups} 
+                name={'infoTooltip'}
+              />
         </div>
       </CardsContext.Provider>
     </CurrentUserContext.Provider>

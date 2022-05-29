@@ -2,27 +2,17 @@ import React, {useState, useEffect} from 'react';
 import PopupWithForm from './PopupWithForm';
 
 function EditProfilePopup({currentUser, onUpdateUser, isOpen, onClose, isLoading}) {
-  // const [name, setName] = useState('');
-  // const [description, setDescription] = useState('');
   const [formValues, setFormValues] = useState({name: '', description: ''})
   const buttonText = isLoading ? 'Сохранение...' : 'Сохранить'
 
   useEffect(() => {
     setFormValues({name: currentUser.name, description: currentUser.about})
-    // setName(currentUser.name);
-    // setDescription(currentUser.about);
   }, [currentUser, isOpen]);
 
   function handleChange(e) {
     const {name, value} = e.target;
     setFormValues((prevState) => ({...prevState, [name]: value}))
   }
-  // function handleChangeName(e) {
-  //   setName(e.target.value)
-  // }
-  // function handleChangeDescription(e) {
-  //   setDescription(e.target.value)
-  // }
 
   function handleSubmit(e) {
     e.preventDefault();
